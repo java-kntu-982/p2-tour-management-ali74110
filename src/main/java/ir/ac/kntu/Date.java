@@ -23,13 +23,13 @@ public class Date {
             this.month = month;
             this.day = day;
         } else {
-            this.year = 1399;
-            this.month = 1;
-            this.day = 1;
+            this.year = 0;
+            this.month = 0;
+            this.day = 0;
         }
     }
 
-    private boolean checkInputs(int year, int month, int day) {
+    public boolean checkInputs(int year, int month, int day) {
         if (month < 1 || month > 12 || day < 1 || day > 31 || month > 6
                 && day == 31) {
             return false;

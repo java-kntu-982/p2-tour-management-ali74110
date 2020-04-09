@@ -1,6 +1,18 @@
 package ir.ac.kntu;
 
-public class City {
-    private String name;
+import java.util.List;
+
+public class City extends Place {
+    private String countryName ;
+
+
+    public void setCountryName(String countryName) {
+        this.countryName = countryName;
+    }
+
+    public String getCountryName() {
+        return countryName;
+    }
+
 
 }
