@@ -79,19 +79,19 @@ public class Tour extends TourType {
                 addTour(tours ,countries, tourTypes ,tourLeaders);
             }
             else if (choice == 5){
-                //TourType.editTourType(tourTypes,countries);
+                TourType.editTourType(tourTypes,countries);
             }
             else if (choice == 6){
-
+                //editTour(tours , tourLeaders);
             }
             else if (choice == 7){
-
+                deleteTour(tours);
             }
             else if (choice == 8){
-
+//
             }
             else if (choice == 9){
-
+//
             }
             else if (choice == 0){break;}
         }
@@ -192,6 +192,7 @@ public class Tour extends TourType {
                 choice4 = scanner.nextInt();
                 if (choice4>0 && choice4<=n){
                     tourAdder.setWhoGotTour(tourLeaders.get(a[choice4-1]));
+                    tourLeaders.get(a[choice4-1]).addTourInHand(tourAdder);
                     break;
                 }
             }
@@ -232,6 +233,28 @@ public class Tour extends TourType {
             return true ;
         }
         else return false;
+    }
+    /*-------------------------------------------------------------------------------------------------------------------*/
+    public static void editTour(List<Tour> tours ,List<TourLeader> tourLeaders){
+        while (true){
+            System.out.println("which part do you want to edit:\n");
+        }
+    }
+    /*-------------------------------------------------------------------------------------------------------------------*/
+    public static void deleteTour(List<Tour> tours){
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+        while (true){
+            showTours(tours);
+            System.out.println("0.back\nEnter a number");
+            choice = scanner.nextInt();
+            if (choice==0){break;}
+            else if (choice>0 && choice<=tours.size()){
+                tours.remove(choice-1);
+                System.out.println("tour deleted.");
+                break;
+            }
+        }
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
     public static void showTours(List<Tour> tours){

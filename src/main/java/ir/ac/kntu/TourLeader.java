@@ -91,7 +91,9 @@ public class TourLeader {
     public List<Tour> getTourInHand() {
         return tourInHand;
     }
-
+    public void addTourInHand(Tour tourInHand) {
+        this.tourInHand.add(tourInHand);
+    }
     public void setTourInHand(List<Tour> tourInHand) {
         this.tourInHand = tourInHand;
     }
@@ -125,6 +127,11 @@ public class TourLeader {
         for (int i=0 ; i<citiesKnow.size() ; i++){
             if (i!=0){ returnString += ","; }
             returnString += citiesKnow.get(i).getName();
+        }
+        returnString +="], tours in hand: [";
+        for (int i=0 ; i<tourInHand.size() ;i++){
+            if (i!=0){ returnString += ","; }
+            returnString+=tourInHand.get(i).toString();
         }
         returnString += "]";
         return returnString ;
