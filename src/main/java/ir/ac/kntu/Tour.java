@@ -14,7 +14,26 @@ public class Tour extends TourType {
     private Date endingDate ;
     private int wayOfTraveling;
     private TourLeader whoGotTour;
+
+    private City nowInCity;
+    private Location nowInLocation;
     /*-------------------------------------------------------------------------------------------------------------------*/
+
+    public City getNowInCity() {
+        return nowInCity;
+    }
+
+    public void setNowInCity(City nowInCity) {
+        this.nowInCity = nowInCity;
+    }
+
+    public Location getNowInLocation() {
+        return nowInLocation;
+    }
+
+    public void setNowInLocation(Location nowInLocation) {
+        this.nowInLocation = nowInLocation;
+    }
 
     public int getNo() {
         return no;
@@ -60,7 +79,7 @@ public class Tour extends TourType {
         return getName()+no+" : from "+beginningDate.toString()+" until "+endingDate.toString()+", "+getDuration() +" days, cost= " + getCost()+", held by:"+whoGotTour.getFirstName()+" "+whoGotTour.getLastName();
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void tourMenu(List<Tour> tours , List<Country> countries , List<TourType> tourTypes , List<TourLeader> tourLeaders){
+    public static void tourMenu(List<Tour> tours , List<Country> countries , List<TourType> tourTypes , List<TourLeader> tourLeaders, AccessLevel accessLevel){
         Scanner scanner = new Scanner(System.in);
         int choice;
         while (true){
@@ -73,19 +92,19 @@ public class Tour extends TourType {
                 showTours(tours);Main.takeMeBack();
             }
             else if (choice == 3){
-                TourType.addTourType(tourTypes,countries);
+                TourType.addTourType(tourTypes,countries,accessLevel);
             }
             else if (choice == 4){
-                addTour(tours ,countries, tourTypes ,tourLeaders);
+                addTour(tours ,countries, tourTypes ,tourLeaders,accessLevel);
             }
             else if (choice == 5){
-                TourType.editTourType(tourTypes,countries);
+                TourType.editTourType(tourTypes,countries,accessLevel);
             }
             else if (choice == 6){
                 //editTour(tours , tourLeaders);
             }
             else if (choice == 7){
-                deleteTour(tours);
+                deleteTour(tours,accessLevel);
             }
             else if (choice == 8){
 //
@@ -97,7 +116,11 @@ public class Tour extends TourType {
         }
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void addTour(List<Tour> tours , List<Country> countries , List<TourType> tourTypes , List<TourLeader> tourLeaders){
+    public static void addTour(List<Tour> tours , List<Country> countries , List<TourType> tourTypes , List<TourLeader> tourLeaders, AccessLevel accessLevel){
+        if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.TourLeader){
+            System.out.println("you don't have access to this part!");
+            return;
+        }
         while (true){
             Tour tourAdder = new Tour();
             Scanner scanner = new Scanner(System.in);
@@ -106,36 +129,16 @@ public class Tour extends TourType {
                 System.out.println("you should first add tour types.(to add enter '1')");
                 int choice2=scanner.nextInt();
                 if (choice2 == 1){
-                    TourType.addTourType(tourTypes,countries);
+                    TourType.addTourType(tourTypes,countries,accessLevel);
                     continue;
                 }
             }
-            while (true){
+            do {
                 System.out.println("choose a tour type:");
                 TourType.showTourTypes(tourTypes);
                 choice = scanner.nextInt();
-                if (choice>0 && choice<=tourTypes.size()){
-                    tourAdder.setCost(tourTypes.get(choice-1).getCost());
-                    tourAdder.setDuration(tourTypes.get(choice-1).getDuration());
-                    tourAdder.setInternational(tourTypes.get(choice-1).isInternational());
-                    tourAdder.setMaximumParticipants(tourTypes.get(choice-1).getMaximumParticipants());
-                    tourAdder.setMinimumParticipants(tourTypes.get(choice-1).getMinimumParticipants());
-                    tourAdder.setName(tourTypes.get(choice-1).getName());
-                    tourAdder.setNo(tourTypes.get(choice-1).getTourNum());
-                    tourTypes.get(choice-1).setTourNum(tourTypes.get(choice-1).getTourNum()+1);
-                    if (tourTypes.get(choice-1).isInternational()){
-                        tourAdder.setBeginningCity(tourTypes.get(choice-1).getBeginningCity());
-                        tourAdder.setEndingCity(tourTypes.get(choice-1).getEndingCity());
-                        tourAdder.setCitiesToSee(tourTypes.get(choice-1).getCitiesToSee());
-                    }
-                    else {
-                        tourAdder.setBeginningPlace(tourTypes.get(choice-1).getBeginningPlace());
-                        tourAdder.setEndingPlace(tourTypes.get(choice-1).getEndingPlace());
-                        tourAdder.setPlacesToSee(tourTypes.get(choice-1).getPlacesToSee());
-                    }
-                    break;
-                }
-            }
+            } while (choice <= 0 || choice > tourTypes.size());
+
             while (true){
                 System.out.println("the way of traveling:\n1.by air\n2.by ground\nEnter a number:");
                 choice3 = scanner.nextInt();
@@ -144,17 +147,17 @@ public class Tour extends TourType {
                     break;
                 }
             }
-            int day , month ,year ;
+            int bDay , bMonth ,bYear,eDay,eMonth,eYear ;
             Date beginningDate = new Date();
             Date endingDate = new Date();
             while (true){
                 System.out.println("\nBeginning day Date: day->");
-                day = scanner.nextInt();
+                bDay = scanner.nextInt();
                 System.out.println("\nmonth->");
-                month = scanner.nextInt();
+                bMonth = scanner.nextInt();
                 System.out.println("\nyear->");
-                year = scanner.nextInt();
-                beginningDate.setDate(year,month,day);
+                bYear = scanner.nextInt();
+                beginningDate.setDate(bYear,bMonth,bDay);
                 if (beginningDate.getDay() == 0 && beginningDate.getMonth() == 0 && beginningDate.getYear() == 0 ){
                     System.out.println("\n wrong path !!!");
                     continue;
@@ -164,14 +167,20 @@ public class Tour extends TourType {
             }
             while (true){
                 System.out.println("\nending day Date: day->");
-                day = scanner.nextInt();
+                eDay = scanner.nextInt();
                 System.out.println("\nmonth->");
-                month = scanner.nextInt();
+                eMonth = scanner.nextInt();
                 System.out.println("\nyear->");
-                year = scanner.nextInt();
-                endingDate.setDate(year,month,day);
+                eYear = scanner.nextInt();
+                endingDate.setDate(eYear,eMonth,eDay);
                 if (endingDate.getDay() == 0 && endingDate.getMonth() == 0 && endingDate.getYear() == 0 ){
                     System.out.println("\n wrong path !!!");
+                    continue;
+                }
+                int beginningDayValue = bDay + bMonth * 31 + bYear * 365;
+                int endingDayValue = eDay + eMonth * 31 + eYear * 365;
+                if ((beginningDayValue > endingDayValue) || (endingDayValue-beginningDayValue!=tourTypes.get(choice-1).getDuration())){
+                    System.out.println("tour duration is "+tourTypes.get(choice-1).getDuration()+"!!!");
                     continue;
                 }
                 tourAdder.setEndingDate(endingDate);
@@ -187,15 +196,42 @@ public class Tour extends TourType {
             for (int j=1 ; j<=n ;j++){
                 System.out.println(j+". "+tourLeaders.get(a[j-1]).toString());
             }
+
+            tourAdder.setCost(tourTypes.get(choice-1).getCost());
+            tourAdder.setDuration(tourTypes.get(choice-1).getDuration());
+            tourAdder.setInternational(tourTypes.get(choice-1).isInternational());
+            tourAdder.setMaximumParticipants(tourTypes.get(choice-1).getMaximumParticipants());
+            tourAdder.setMinimumParticipants(tourTypes.get(choice-1).getMinimumParticipants());
+            tourAdder.setName(tourTypes.get(choice-1).getName());
+            tourAdder.setNo(tourTypes.get(choice-1).getTourNum());
+            if (tourTypes.get(choice-1).isInternational()){
+                tourAdder.setBeginningCity(tourTypes.get(choice-1).getBeginningCity());
+                tourAdder.setEndingCity(tourTypes.get(choice-1).getEndingCity());
+                tourAdder.setCitiesToSee(tourTypes.get(choice-1).getCitiesToSee());
+                tourAdder.setNowInCity(tourTypes.get(choice-1).getBeginningCity());
+                tourAdder.setToGoCountry(tourTypes.get(choice-1).getToGoCountry());
+            }
+            else {
+                tourAdder.setBeginningLocation(tourTypes.get(choice-1).getBeginningLocation());
+                tourAdder.setEndingLocation(tourTypes.get(choice-1).getEndingLocation());
+                tourAdder.setLocationsToSee(tourTypes.get(choice-1).getLocationsToSee());
+                tourAdder.setNowInLocation(tourTypes.get(choice-1).getBeginningLocation());
+                tourAdder.setToGo(tourTypes.get(choice-1).getToGo());
+            }
             while (true){
                 System.out.println("Enter a number: ");
                 choice4 = scanner.nextInt();
                 if (choice4>0 && choice4<=n){
                     tourAdder.setWhoGotTour(tourLeaders.get(a[choice4-1]));
                     tourLeaders.get(a[choice4-1]).addTourInHand(tourAdder);
+                    tourLeaders.get(a[choice4-1]).addBusyDates(tourAdder.getBeginningDate());
+                    tourLeaders.get(a[choice4-1]).addBusyDates(tourAdder.getEndingDate());
                     break;
                 }
             }
+
+            tourTypes.get(choice-1).setTourNum(tourTypes.get(choice-1).getTourNum()+1);
+
             tours.add(tourAdder);
             break;
         }
@@ -225,23 +261,24 @@ public class Tour extends TourType {
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
     public static boolean checkCoveringDates(Date sdate1 , Date edate1 , Date sdate2, Date edate2 ){
-        int sd1 = sdate1.getDay() + sdate1.getMonth()*31 + sdate1.getYear()*365;
-        int sd2 = sdate2.getDay() + sdate2.getMonth()*31 + sdate2.getYear()*365;
-        int ed1 = edate1.getDay() + edate1.getMonth()*31 + edate1.getYear()*365;
-        int ed2 = edate2.getDay() + edate2.getMonth()*31 + edate2.getYear()*365;
-        if ((ed1>sd2 && ed1<ed2) || (ed2>sd1 && ed2<ed1)){
-            return true ;
-        }
-        else return false;
+        long sd1 = sdate1.getDay() + sdate1.getMonth()*31 + sdate1.getYear()*365;
+        long ed1 = edate1.getDay() + edate1.getMonth()*31 + edate1.getYear()*365;
+        long sd2 = sdate2.getDay() + sdate2.getMonth()*31 + sdate2.getYear()*365;
+        long ed2 = edate2.getDay() + edate2.getMonth()*31 + edate2.getYear()*365;
+        return (sd1 > ed2) || (sd2 > ed1);
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void editTour(List<Tour> tours ,List<TourLeader> tourLeaders){
-        while (true){
-            System.out.println("which part do you want to edit:\n");
-        }
-    }
+//    public static void editTour(List<Tour> tours ,List<TourLeader> tourLeaders, User signedInUser , AccessLevel accessLevel){
+//        while (true){
+//            System.out.println("which part do you want to edit:\n");
+//        }
+//    }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void deleteTour(List<Tour> tours){
+    public static void deleteTour(List<Tour> tours , AccessLevel accessLevel){
+        if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.TourLeader || accessLevel == AccessLevel.Employee){
+            System.out.println("you don't have access to this part!");
+            return;
+        }
         Scanner scanner = new Scanner(System.in);
         int choice;
         while (true){

@@ -19,9 +19,9 @@ public class TourType {
     private List<City> citiesToSee; //= new ArrayList<>();
 
     private City toGo;
-    private Place beginningPlace ;
-    private Place endingPlace;
-    private List<Place> placesToSee;// = new ArrayList<>();
+    private Location beginningLocation ;
+    private Location endingLocation;
+    private List<Location> LocationsToSee;// = new ArrayList<>();
     /*-------------------------------------------------------------------------------------------------------------------*/
 
     public int getTourNum() {
@@ -112,28 +112,28 @@ public class TourType {
         this.toGo = toGo;
     }
 
-    public Place getBeginningPlace() {
-        return beginningPlace;
+    public Location getBeginningLocation() {
+        return beginningLocation;
     }
 
-    public void setBeginningPlace(Place beginningPlace) {
-        this.beginningPlace = beginningPlace;
+    public void setBeginningLocation(Location beginningLocation) {
+        this.beginningLocation = beginningLocation;
     }
 
-    public Place getEndingPlace() {
-        return endingPlace;
+    public Location getEndingLocation() {
+        return endingLocation;
     }
 
-    public void setEndingPlace(Place endingPlace) {
-        this.endingPlace = endingPlace;
+    public void setEndingLocation(Location endingLocation) {
+        this.endingLocation = endingLocation;
     }
 
-    public List<Place> getPlacesToSee() {
-        return placesToSee;
+    public List<Location> getLocationsToSee() {
+        return LocationsToSee;
     }
 
-    public void setPlacesToSee(List<Place> placesToSee) {
-        this.placesToSee = placesToSee;
+    public void setLocationsToSee(List<Location> LocationsToSee) {
+        this.LocationsToSee = LocationsToSee;
     }
 
     public Country getToGoCountry() {
@@ -148,26 +148,25 @@ public class TourType {
         return name + ": " + duration +" days, cost= " + cost ;
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void addTourType (List<TourType> tourTypes , List<Country> countries){
-            while (true){
-                Scanner scanner = new Scanner(System.in);
-                int choice;
-                int minimumParticipants;
-                int maximumParticipants;
-                int duration;
-                int cost;
-                boolean international;
-                System.out.println("\n<<tour type adder>>\n1.international tour\n2.Iran tour\n3.back");
-                choice = scanner.nextInt();
-                if (choice == 1){
-                    addInternationalTourType(tourTypes , countries);
-                }
-                else if (choice == 2){
-                    addIranTourType(tourTypes , countries);
-                }
-                else if (choice == 3){break;}
-            }
+    public static void addTourType (List<TourType> tourTypes , List<Country> countries,AccessLevel accessLevel){
+        if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.Employee){
+            System.out.println("you don't have access to this part!");
+            return;
         }
+        while (true){
+            Scanner scanner = new Scanner(System.in);
+            int choice;
+            System.out.println("\n<<tour type adder>>\n1.international tour\n2.Iran tour\n3.back");
+            choice = scanner.nextInt();
+            if (choice == 1){
+                addInternationalTourType(tourTypes , countries);
+            }
+            else if (choice == 2){
+                addIranTourType(tourTypes , countries);
+            }
+            else if (choice == 3){break;}
+        }
+    }
 
         public static void addInternationalTourType (List<TourType> tourTypes , List<Country> countries){
         while (true) {
@@ -181,7 +180,7 @@ public class TourType {
                 System.out.println("\nfirst add country.(want to? ->'1'): ");
                 int choice2 = scanner.nextInt();
                 if (choice2 == 1) {
-                    Place.addCountry(countries);
+                    Location.addCountry(countries);
                     continue;
                 }
                 else { break; }
@@ -199,19 +198,7 @@ public class TourType {
                     System.out.println("country does not exist.");
                 }
             }
-            while (true) {
-                System.out.println("\nhow many days: ");
-                duration = scanner.nextInt();
-                if (duration > toGoCountry.getCities().size()) {
-                    System.out.println("Enter less .(less cities from this country is saved.) or add city?->'1': ");
-                    int choice2 = scanner.nextInt();
-                    if (choice2 == 1) {
-                        Place.addCity(toGoCountry);
-                    }
-                } else if (duration > 0) {
-                    break;
-                }
-            }
+            duration = getDuration(scanner, toGoCountry);
             do {
                 System.out.println("\nhow much does it cost: ");
                 cost = scanner.nextInt();
@@ -228,7 +215,7 @@ public class TourType {
             System.out.println("choose cities want to visit during tour:");
             for (int i = 0; i < duration; i++) {
                 while (true) {
-                    Place.showCities(toGoCountry, 2);
+                    Location.showCities(toGoCountry, 2);
                     System.out.println("Enter a number: ");
                     choice3 = scanner.nextInt();
                     if (choice3 > 0 && choice3 <= toGoCountry.getCities().size()) {
@@ -250,7 +237,7 @@ public class TourType {
             tourTypeAdder.setToGoCountry(toGoCountry);
             tourTypeAdder.setCost(cost);
             tourTypeAdder.setDuration(duration);
-            tourTypeAdder.setInternational(international);
+            tourTypeAdder.setInternational(true);
             tourTypeAdder.setMinimumParticipants(minimumParticipants);
             tourTypeAdder.setMaximumParticipants(maximumParticipants);
             tourTypes.add(tourTypeAdder);
@@ -258,15 +245,34 @@ public class TourType {
             break;
         }
     }
+
+    private static int getDuration(Scanner scanner, Country toGoCountry) {
+        int duration;
+        while (true) {
+            System.out.println("\nhow many days: ");
+            duration = scanner.nextInt();
+            if (duration > toGoCountry.getCities().size()) {
+                System.out.println("Enter less .(less cities from this country is saved.) or add city?->'1': ");
+                int choice2 = scanner.nextInt();
+                if (choice2 == 1) {
+                    Location.addCity(toGoCountry);
+                }
+            } else if (duration > 0) {
+                break;
+            }
+        }
+        return duration;
+    }
+
     /*-------------------------------------------------------------------------------------------------------------------*/
     public static void addIranTourType (List<TourType> tourTypes , List<Country> countries){
+
         Scanner scanner = new Scanner(System.in);
         int choice , minimumParticipants ,maximumParticipants , duration , cost;
-        boolean international;
         City toGo ;
-        Place beginningPlace = new Place() , endingPlace = new Place();
-        List<Place> placesToSee = new ArrayList<>();
-        Place.showCities(countries.get(0),2);
+        Location beginningLocation  , endingLocation ;
+        List<Location> LocationsToSee = new ArrayList<>();
+        Location.showCities(countries.get(0),2);
         while (true){
             System.out.println("\nchoose the city tour want to visit:");
             choice = scanner.nextInt();
@@ -294,39 +300,43 @@ public class TourType {
             System.out.println("maximum participants: ");
             maximumParticipants = scanner.nextInt();
         } while (maximumParticipants <= 0 || maximumParticipants < minimumParticipants);
-        international = false ;
-        String placeName;
-        Place placeAdder = new Place();
-        for (int i=0 ; i<duration ; i++ ){
-            Scanner scanner2 = new Scanner(System.in);
-            System.out.println("places to see:");
-            placeName = scanner2.nextLine();
-            placeName = placeName.trim().toLowerCase();
-            placeAdder.setName(placeName);
-            placesToSee.add(placeAdder);
-        }
+        Location locationAdder = new Location();
+        addLocationsToSee(locationAdder, duration, LocationsToSee);
         if (duration==1){
-            beginningPlace = placeAdder;
-            endingPlace = placeAdder ;
+            beginningLocation = locationAdder;
+            endingLocation = locationAdder ;
         }
         else {
-            beginningPlace=placesToSee.get(0);
-            endingPlace = placesToSee.get(duration-1);
+            beginningLocation=LocationsToSee.get(0);
+            endingLocation = LocationsToSee.get(duration-1);
         }
         System.out.println("tour type added.");
 
         TourType tourTypeAdder = new TourType();
         tourTypeAdder.setToGo(toGo);
         tourTypeAdder.setName(toGo.getName());
-        tourTypeAdder.setEndingPlace(endingPlace);
-        tourTypeAdder.setBeginningPlace(beginningPlace);
+        tourTypeAdder.setEndingLocation(endingLocation);
+        tourTypeAdder.setBeginningLocation(beginningLocation);
         tourTypeAdder.setCost(cost);
         tourTypeAdder.setDuration(duration);
-        tourTypeAdder.setInternational(international);
+        tourTypeAdder.setInternational(false);
         tourTypeAdder.setMinimumParticipants(minimumParticipants);
         tourTypeAdder.setMaximumParticipants(maximumParticipants);
-        tourTypeAdder.setPlacesToSee(placesToSee);
+        tourTypeAdder.setLocationsToSee(LocationsToSee);
         tourTypes.add(tourTypeAdder);
+    }
+
+    private static Location addLocationsToSee(Location LocationAdder,int duration, List<Location> locationsToSee) {
+        String locationName;
+        for (int i=0 ; i<duration ; i++ ){
+            Scanner scanner2 = new Scanner(System.in);
+            System.out.println("Locations to see:");
+            locationName = scanner2.nextLine();
+            locationName = locationName.trim().toLowerCase();
+            LocationAdder.setName(locationName);
+            locationsToSee.add(LocationAdder);
+        }
+        return LocationAdder;
     }
 
 
@@ -340,7 +350,11 @@ public class TourType {
         }
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void editTourType(List<TourType> tourTypes,List<Country> countries){
+    public static void editTourType(List<TourType> tourTypes,List<Country> countries, AccessLevel accessLevel){
+        if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.Employee){
+            System.out.println("you don't have access to this part!");
+            return;
+        }
         Scanner scanner = new Scanner(System.in);
         int choice , tourTypeChoice;
         int duration;
@@ -371,24 +385,12 @@ public class TourType {
                                     System.out.println("country does not exist.");
                                 }
                             }
-                            while (true) {
-                                System.out.println("\nhow many days: ");
-                                duration = scanner.nextInt();
-                                if (duration > toGoCountry.getCities().size()) {
-                                    System.out.println("Enter less .(less cities from this country is saved.) or add city?->'1': ");
-                                    int choice2 = scanner.nextInt();
-                                    if (choice2 == 1) {
-                                        Place.addCity(toGoCountry);
-                                    }
-                                } else if (duration > 0) {
-                                    break;
-                                }
-                            }
+                            duration = getDuration(scanner, toGoCountry);
                             if (countries.size() == 1) {
                                 System.out.println("\nfirst add country.(want to? ->'1'): ");
                                 int choice2 = scanner.nextInt();
                                 if (choice2 == 1) {
-                                    Place.addCountry(countries);
+                                    Location.addCountry(countries);
                                     continue;
                                 }
                                 else { break; }
@@ -396,7 +398,7 @@ public class TourType {
                             System.out.println("choose cities want to visit during tour:");
                             for (int i = 0; i < duration; i++) {
                                 while (true) {
-                                    Place.showCities(toGoCountry, 2);
+                                    Location.showCities(toGoCountry, 2);
                                     System.out.println("Enter a number: ");
                                     int choice3 = scanner.nextInt();
                                     if (choice3 > 0 && choice3 <= toGoCountry.getCities().size()) {
@@ -425,15 +427,15 @@ public class TourType {
                         }
 
                         else {
-                            Place beginningPlace  , endingPlace ;
-                            List<Place> placesToSee = new ArrayList<>();
+                            Location beginningLocation  , endingLocation ;
+                            List<Location> LocationsToSee = new ArrayList<>();
                             City toGoCity;
                             do {
                                 System.out.println("how many days: ");
                                 duration = scanner.nextInt();
                             } while (duration <= 0);
                             tourTypes.get(tourTypeChoice-1).setDuration(duration);
-                            Place.showCities(countries.get(0),2);
+                            Location.showCities(countries.get(0),2);
                             while (true){
                                 System.out.println("\nchoose the city tour want to visit:");
                                 int choice2 = scanner.nextInt();
@@ -446,28 +448,20 @@ public class TourType {
                                 }
                             }
                             tourTypes.get(tourTypeChoice-1).setToGo(toGoCity);
-                            String placeName;
-                            Place placeAdder = new Place();
-                            for (int i=0 ; i<duration ; i++ ){
-                                Scanner scanner2 = new Scanner(System.in);
-                                System.out.println("places to see:");
-                                placeName = scanner2.nextLine();
-                                placeName = placeName.trim().toLowerCase();
-                                placeAdder.setName(placeName);
-                                placesToSee.add(placeAdder);
-                            }
-                            tourTypes.get(tourTypeChoice-1).setPlacesToSee(placesToSee);
+                            Location locationAdder = new Location();
+                            locationAdder = addLocationsToSee(locationAdder , duration, LocationsToSee);
+                            tourTypes.get(tourTypeChoice-1).setLocationsToSee(LocationsToSee);
                             tourTypes.get(tourTypeChoice-1).setName(toGoCity.getName());
                             if (duration==1){
-                                beginningPlace = placeAdder;
-                                endingPlace = placeAdder ;
+                                beginningLocation = locationAdder;
+                                endingLocation = locationAdder ;
                             }
                             else {
-                                beginningPlace=placesToSee.get(0);
-                                endingPlace = placesToSee.get(duration-1);
+                                beginningLocation=LocationsToSee.get(0);
+                                endingLocation = LocationsToSee.get(duration-1);
                             }
-                            tourTypes.get(tourTypeChoice-1).setBeginningPlace(beginningPlace);
-                            tourTypes.get(tourTypeChoice-1).setEndingPlace(endingPlace);
+                            tourTypes.get(tourTypeChoice-1).setBeginningLocation(beginningLocation);
+                            tourTypes.get(tourTypeChoice-1).setEndingLocation(endingLocation);
                             tourTypes.get(tourTypeChoice-1).setTourNum(1);
                             break;
                         }

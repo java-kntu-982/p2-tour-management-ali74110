@@ -3,7 +3,7 @@ package ir.ac.kntu;
 import java.util.List;
 import java.util.Scanner;
 
-public class Place {
+public class Location {
     private String name ;
     private Double xCoordinate = 0.0 ;
     private Double yCoordinate = 0.0 ;
@@ -17,7 +17,7 @@ public class Place {
 
     /*-----------------------------------------------------------------------------------------------*/
     /*-----------------------------------------------------------------------------------------------*/
-    public static void LocationsMenu(List<Country> countries ){
+    public static void LocationsMenu(List<Country> countries ,AccessLevel accessLevel){
         Scanner scanner = new Scanner(System.in);
         int choice;
         while (true){

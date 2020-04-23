@@ -2,14 +2,14 @@ package ir.ac.kntu;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
  * @author Seyed Ali Toliat
  */
-public class TourLeader {
+public class TourLeader extends User {
     private String firstName ;
     private String lastName ;
     private long nationalCode;
@@ -22,6 +22,24 @@ public class TourLeader {
     private List<Tour> tourInHand = new ArrayList<>() ;
     private List<Date> busyDates = new ArrayList<>();
     /*---------------------------------------------------*/
+
+    public TourLeader(String userName, String password, String email, String phoneNumber, AccessLevel accessLevel, String firstName, String lastName, long nationalCode, long identityNum, Date birthDate, int age, boolean married, List<City> citiesKnow, List<String> nameOfCountriesKnow, List<Tour> tourInHand, List<Date> busyDates) {
+        super(userName, password, email, phoneNumber, accessLevel);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.nationalCode = nationalCode;
+        this.identityNum = identityNum;
+        this.birthDate = birthDate;
+        this.age = age;
+        this.married = married;
+        this.citiesKnow = citiesKnow;
+        this.nameOfCountriesKnow = nameOfCountriesKnow;
+        this.tourInHand = tourInHand;
+        this.busyDates = busyDates;
+    }
+
+    public TourLeader() {
+    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -148,7 +166,7 @@ public class TourLeader {
         return a;
     }
     /*-------------------------------------------------------------------------------------------------------------------*/
-    public static void tourLeaderMenu(List<TourLeader> tourLeaders , List<Country> countries){
+    public static void tourLeaderMenu(List<TourLeader> tourLeaders , List<Country> countries,AccessLevel accessLevel){
         while (true){
             Scanner scanner = new Scanner(System.in);
             int choice;
@@ -157,6 +175,10 @@ public class TourLeader {
             if (choice == 1){ showTourLeaders(tourLeaders); Main.takeMeBack(); }
             else if (choice == 2){ addTourLeader(tourLeaders,countries);}
             else if (choice == 3){
+                if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.TourLeader){
+                    System.out.println("you don't have access to this part!");
+                    return;
+                }
                 Scanner scanner2 = new Scanner(System.in);
                 int choice2 ;
                 System.out.println("\n<< Deleter >>\nWhich leader you want to be deleted?\n");
@@ -166,32 +188,46 @@ public class TourLeader {
                 deleteTourLeader(tourLeaders,choice2);
             }
             else if (choice == 4){
+                if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.TourLeader){
+                    System.out.println("you don't have access to this part!");
+                    return;
+                }
                 System.out.println("\n<< Editor >>\nWhich leader you want to be edited?\n");
                 showTourLeaders(tourLeaders);
                 System.out.println("0.Back\nEnter the number :");
                 int tourLeaderChoice = scanner.nextInt();
                 editTourLeader(tourLeaders, countries,tourLeaderChoice);
             }
-            else if (choice == 5){ searchTourLeader(tourLeaders,countries); }
+            else if (choice == 5){
+                if (accessLevel == AccessLevel.Customer || accessLevel == AccessLevel.TourLeader){
+                    System.out.println("you don't have access to this part!");
+                    return;
+                }
+                searchTourLeader(tourLeaders,countries); }
             else if (choice == 6){ break; }
         }
     }
     /*-----------------------------------------------------------------------------------------------*/
     public static void addTourLeader(List<TourLeader> tourLeaders , List<Country> countries){
-        tourLeaders.add(getTourLeader(0 , countries));
-        System.out.println("\nTour Leader added.\n");
+        TourLeader toAdd;
+        toAdd = getTourLeader(0 , countries);
+        toAdd.setPassword2("1234567");
+        toAdd.setUserName(toAdd.getLastName());
+        tourLeaders.add(toAdd);
+        System.out.println("\nTour Leader added.(userName:"+ toAdd.getUserName() + ", Pass:" + toAdd.getPassword() +")"+ "\n");
+
     }
     /*-----------------------------------------------------------------------------------------------*/
     public static TourLeader getTourLeader (int type , List<Country> countries ,TourLeader... toEditTourLeader){
         Scanner scanner = new Scanner(System.in);
         TourLeader tourLeaderGetter = new TourLeader();
-        //tourLeaderGetter.getBusyDates().add(0,new Date(1200,1,1));
         String firstName , lastName ;
         long nationalCode , identityNum;
         Date birthDate = new Date();
         int day , month , year;
         int choice;
         boolean married;int marriedChoice;
+        tourLeaderGetter.setAccessLevel(AccessLevel.TourLeader);
         if (type == 0){ System.out.println("\n<< Adder >>\nnew tour leader :");}
         if (type != 0){
             System.out.println("tour leader: " + toEditTourLeader[0].getFirstName() + " " + toEditTourLeader[0].getLastName());
@@ -203,6 +239,10 @@ public class TourLeader {
             tourLeaderGetter.setMarried(toEditTourLeader[0].isMarried());
             tourLeaderGetter.setNameOfCountriesKnow(toEditTourLeader[0].getNameOfCountriesKnow());
             tourLeaderGetter.setCitiesKnow(toEditTourLeader[0].getCitiesKnow());
+            tourLeaderGetter.setEmail(toEditTourLeader[0].getEmail());
+            tourLeaderGetter.setPhoneNumber(toEditTourLeader[0].getPhoneNumber());
+            tourLeaderGetter.setUserName(toEditTourLeader[0].getUserName());
+            tourLeaderGetter.setPassword(toEditTourLeader[0].getPassword());
         }
         if (type == 0 || type == 1){
             System.out.println("\nFirst Name:");
@@ -240,6 +280,25 @@ public class TourLeader {
                 break;
             }
             tourLeaderGetter.setBirthDate(birthDate);
+        }
+        boolean EmailIsValid , phoneNumberIsValid;
+        Scanner scanner1 = new Scanner(System.in);
+        if (type == 0 || type == 9){
+            do {
+                String phoneNumber;
+                System.out.println("\nPhone number:");
+                phoneNumber = scanner1.nextLine();
+                phoneNumberIsValid = tourLeaderGetter.setPhoneNumber(phoneNumber);
+            }while (!phoneNumberIsValid);
+        }
+        scanner = new Scanner(System.in);
+        if (type == 0 || type == 8){
+            do {
+                String Email;
+                System.out.println("\nE-mail:");
+                Email = scanner.nextLine();
+                EmailIsValid = tourLeaderGetter.setEmail(Email);
+            }while (!EmailIsValid);
         }
         if (type == 0 || type == 6){
             System.out.println("\nis married? ( Yes->'1' , No->'2' ) :");
@@ -317,7 +376,7 @@ public class TourLeader {
                                 System.out.println("no cities from this country is added.(want to add? -> '1'");
                                 toAddChoice = scanner.nextInt();
                                 if (toAddChoice==1){
-                                    Place.addLocation(countries);
+                                    Location.addLocation(countries);
                                 }
                             }
                             System.out.println("\ncities from "+tourLeader.getNameOfCountriesKnow().get(countryChoice-1)+":");
@@ -354,11 +413,11 @@ public class TourLeader {
             System.out.println("no country exist.\nwant to add? (Yes->'1' , No->any other number)\nenter a number:");
             choice = scanner.nextInt();
             if (choice == 1){
-                Place.addCountry(countries);
+                Location.addCountry(countries);
             }
         }
         while (true){
-            Place.showCountries(countries , true );
+            Location.showCountries(countries , true );
             System.out.println("choose a country:(back->'0')\nEnter a number");
             choice = scanner.nextInt();
             if (choice == 0){break;}
@@ -366,7 +425,7 @@ public class TourLeader {
                 int cityChoice;
                 while (true){
                     System.out.println("\nwhich one you want to add?(back->'0')\n");
-                    Place.showCities(countries.get(choice-1),1);
+                    Location.showCities(countries.get(choice-1),1);
                     System.out.println("Enter a number:");
                     cityChoice = scanner.nextInt();
                     if (cityChoice == 0){ break; }
@@ -435,10 +494,11 @@ public class TourLeader {
         Scanner scanner = new Scanner(System.in);
         int  editTypechoice;
         if (tourLeaderChoice > 0 && tourLeaderChoice <= tourLeaders.size()) {
-            System.out.println("which part do you want to edit?\n1.first name\n2.last name\n3.national code\n4.identity number\n5.birth date\n6.marriage\n7.Locations know\n8.back");
+            System.out.println("which part do you want to edit?\n1.first name\n2.last name\n3.national code\n4.identity number\n5.birth date\n" +
+                    "6.marriage\n7.Locations know\n8.E-mail\n9.Phone Number\n0.back\nEnter a Number: ");
             while (true){
                 editTypechoice = scanner.nextInt();
-                if (editTypechoice == 8){ break; }
+                if (editTypechoice == 0){ break; }
                 else if(editTypechoice == 1){
                     tourLeaders.add(tourLeaderChoice-1 , getTourLeader(1 ,countries, tourLeaders.get(tourLeaderChoice-1)));
                     tourLeaders.remove(tourLeaderChoice);
@@ -479,6 +539,18 @@ public class TourLeader {
                     tourLeaders.add(tourLeaderChoice-1 , getTourLeader(7,countries , tourLeaders.get(tourLeaderChoice-1)));
                     tourLeaders.remove(tourLeaderChoice);
                     System.out.println("\nLocations edited.\n");
+                    break;
+                }
+                else if(editTypechoice == 8){
+                    tourLeaders.add(tourLeaderChoice-1 , getTourLeader(8 ,countries, tourLeaders.get(tourLeaderChoice-1)));
+                    tourLeaders.remove(tourLeaderChoice);
+                    System.out.println("\nE-mail edited");
+                    break;
+                }
+                else if(editTypechoice == 9){
+                    tourLeaders.add(tourLeaderChoice-1 , getTourLeader(9 ,countries, tourLeaders.get(tourLeaderChoice-1)));
+                    tourLeaders.remove(tourLeaderChoice);
+                    System.out.println("\nPhone Number edited");
                     break;
                 }
             }

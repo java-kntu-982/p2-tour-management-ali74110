@@ -2,7 +2,7 @@ package ir.ac.kntu;
 
 import java.util.List;
 
-public class City extends Place {
+public class City extends Location {
     private String countryName ;
 
 
